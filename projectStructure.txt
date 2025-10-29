@@ -1,0 +1,30 @@
+LoginRoyale/
+├── package.json                 # root - runs both client & server concurrently
+├── server/
+│   ├── package.json
+│   ├── server.js
+│   ├── routes/
+│   │   └── auth.js
+│   └── utils/
+│       └── generatePassword.js
+└── client/
+    ├── package.json
+    ├── index.html
+    └── src/
+        ├── main.jsx
+        ├── App.jsx
+        ├── index.css
+        ├── utils/
+        │   └── api.js
+        ├── components/
+        │   ├── Wheel.jsx
+        │   ├── Blackjack.jsx
+        │   ├── HorseRace.jsx
+        │   ├── DiceRoll.jsx
+        │   └── SoundEffects.js
+        └── pages/
+            ├── LoadingPage.jsx
+            ├── LoginPage.jsx
+            ├── VerifyPage.jsx
+            ├── TwoFactorPage.jsx
+            └── DashboardPage.jsx
