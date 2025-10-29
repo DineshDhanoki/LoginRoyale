@@ -8,6 +8,8 @@
     "dev-client": "npm --prefix client run dev"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.10",
+    "vite": "^7.1.12"
   }
 }
