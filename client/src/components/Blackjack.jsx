@@ -3,9 +3,10 @@ import { createSfx } from './SoundEffects';
 import { resetPassword } from '../utils/api';
 
 function cardValue(card) {
-  if (card === 'A') return 11;
-  if (['J','Q','K'].includes(card)) return 10;
-  return Number(card);
+  const r = card.rank;
+  if (r === 'A') return 11;
+  if (['J','Q','K'].includes(r)) return 10;
+  return Number(r);
 }
 
 function drawCard(deck) {
@@ -13,10 +14,48 @@ function drawCard(deck) {
 }
 
 function buildDeck() {
+  const suits = ['♠','♥','♦','♣'];
   const ranks = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
   const deck = [];
-  for (let i=0;i<4;i++) ranks.forEach(r=>deck.push(r));
+  suits.forEach(s => ranks.forEach(r => deck.push({ rank:r, suit:s })));
   return deck;
+}
+
+function CardView({ card, facedown=false, flip=false }) {
+  const isRed = card && (card.suit === '♥' || card.suit === '♦');
+  const front = (
+    <div style={{
+      width:56, height:80, borderRadius:8, background:'#fff', color:isRed?'#c0392b':'#071226',
+      border:'1px solid rgba(0,0,0,0.08)', boxShadow:'0 4px 10px rgba(0,0,0,0.25)', position:'absolute', inset:0,
+      display:'flex', alignItems:'center', justifyContent:'center', backfaceVisibility:'hidden'
+    }}>
+      <div style={{position:'absolute', top:6, left:6, fontSize:12, textAlign:'left'}}>
+        <div>{card.rank}</div>
+        <div>{card.suit}</div>
+      </div>
+      <div style={{fontSize:22}}>{card.suit}</div>
+      <div style={{position:'absolute', bottom:6, right:6, fontSize:12, textAlign:'right', transform:'rotate(180deg)'}}>
+        <div>{card.rank}</div>
+        <div>{card.suit}</div>
+      </div>
+    </div>
+  );
+  const back = (
+    <div style={{
+      width:56, height:80, borderRadius:8, background:'linear-gradient(135deg,#1b3a55,#0e2233)',
+      border:'1px solid rgba(255,255,255,0.15)', boxShadow:'0 4px 10px rgba(0,0,0,0.35)', position:'absolute', inset:0,
+      backfaceVisibility:'hidden', transform:'rotateY(180deg)'
+    }} />
+  );
+  if (!flip && facedown) return back;
+  return (
+    <div style={{position:'relative', width:56, height:80, perspective:600}}>
+      <div style={{position:'absolute', inset:0, transformStyle:'preserve-3d', transform:`rotateY(${facedown ? 180 : 0}deg)`, transition: flip ? 'transform 500ms ease' : undefined}}>
+        {front}
+        {back}
+      </div>
+    </div>
+  );
 }
 
 export default function Blackjack({ onWin }) {
@@ -38,7 +77,7 @@ export default function Blackjack({ onWin }) {
   function sumHand(h) {
     let sum = h.reduce((s,c)=>s+cardValue(c),0);
     // handle aces as 1 if over 21
-    let aces = h.filter(x => x==='A').length;
+    let aces = h.filter(x => x.rank==='A').length;
     while (sum > 21 && aces > 0) {
       sum -= 10;
       aces -= 1;
@@ -106,7 +145,9 @@ export default function Blackjack({ onWin }) {
           <div className="small">Dealer ({ended ? sumHand(dealer) : '?'})</div>
           <div style={{display:'flex', gap:8, marginTop:8}}>
             {dealer.map((c,i)=>(
-              <div key={i} style={{padding:8,background:'#fff',color:'#071226',borderRadius:6,minWidth:36,textAlign:'center'}}>{c}</div>
+              <div key={i}>
+                <CardView card={c} facedown={!ended && i===0} flip={i===0} />
+              </div>
             ))}
           </div>
         </div>
@@ -115,7 +156,9 @@ export default function Blackjack({ onWin }) {
           <div className="small">You ({sumHand(player)})</div>
           <div style={{display:'flex', gap:8, marginTop:8}}>
             {player.map((c,i)=>(
-              <div key={i} style={{padding:8,background:'#fff',color:'#071226',borderRadius:6,minWidth:36,textAlign:'center'}}>{c}</div>
+              <div key={i}>
+                <CardView card={c} />
+              </div>
             ))}
           </div>
         </div>
